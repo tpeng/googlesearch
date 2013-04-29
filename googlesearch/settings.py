@@ -14,6 +14,6 @@ NEWSPIDER_MODULE = 'googlesearch.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'googlesearch (+http://www.yourdomain.com)'
 
-CLOSESPIDER_ITEMCOUNT = 100
+CLOSESPIDER_ITEMCOUNT = 1000
 
 ITEM_PIPELINES = ['googlesearch.pipelines.ScrapyGoogleSpiderPipeline']

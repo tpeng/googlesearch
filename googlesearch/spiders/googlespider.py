@@ -37,8 +37,8 @@ class GoogleSearchSpider(BaseSpider):
     def parse_item(self, response):
         name = response.meta['name']
         url = response.url
-        body = response.body[:1024 * 256]
-        yield GoogleSearchItem({'name': name, 'url': url, 'body': body})
+        html = response.body[:1024 * 256]
+        yield GoogleSearchItem({'name': name, 'url': url, 'html': html, 'country': self.country})
 
     def _build_absolute_url(self, response, url):
         return urljoin(get_base_url(response), url)
