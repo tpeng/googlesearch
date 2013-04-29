@@ -14,6 +14,7 @@ class GoogleSearchSpider(BaseSpider):
     kws = 'contact information'
     country = 'com'
     start_urls = []
+    savedb = True
 
     def start_requests(self):
         url = self.make_google_search_request(self.country, self.kws)
@@ -26,8 +27,10 @@ class GoogleSearchSpider(BaseSpider):
         hxs = HtmlXPathSelector(response)
         for sel in hxs.select('//div[@id="ires"]//li[@class="g"]'):
             name = ''.join(sel.select(".//h3[@class='r']//text()").extract())
-            url =  ''.join(sel.select(".//cite//text()").extract())
-            yield Request(url=self._urlnorm(url), callback=self.parse_item, meta={'name':name})
+            url =  self._urlnorm(''.join(sel.select(".//cite//text()").extract()))
+            code = _get_country_code(url)
+            if code == self.country:
+                yield Request(url=url, callback=self.parse_item, meta={'name':name})
 
         next_page = hxs.select('//table[@id="nav"]//td[@class="b" and position() = last()]/a')
         if next_page:
@@ -56,3 +59,16 @@ class GoogleSearchSpider(BaseSpider):
 
         scheme, netloc, path = urlparse(url)[:3]
         return '%s://%s%s' % (scheme, netloc, path or '/')
+
+
+def _get_country_code(url):
+    """
+    get country code from the url.
+
+    >>> _get_country_code('http://scrapinghub.ie')
+    'ie'
+    >>> _get_country_code('http://scrapinghub.ie/test.html')
+    'ie'
+    """
+    netloc = urlparse(url)[1]
+    return netloc.partition('.')[-1]

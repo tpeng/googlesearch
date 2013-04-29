@@ -20,8 +20,9 @@ class ScrapyGoogleSpiderPipeline(object):
         html = self.cleaner.clean_html(item.get('html', ''))
         doc = document_fromstring(html)
         item['text'] = self._normalize_text(doc.text_content())
-        query = self.dbpool.runInteraction(self._conditional_insert, item)
-        query.addErrback(self.handle_error)
+        if spider.savedb:
+            query = self.dbpool.runInteraction(self._conditional_insert, item)
+            query.addErrback(self.handle_error)
         return item
 
     def _conditional_insert(self, tx, item):
