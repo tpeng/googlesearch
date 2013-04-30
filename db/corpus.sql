@@ -11,6 +11,7 @@ create table page (
   text BLOB,
   country VARCHAR(100) not null,
   address VARCHAR(500) not null,
+  kw VARCHAR(100) not null,
   PRIMARY KEY (id)
 ) engine=innodb default charset=utf8;
 

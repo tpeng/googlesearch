@@ -11,3 +11,4 @@ class GoogleSearchItem(Item):
     url = Field()
     html = Field()
     text = Field()
+    kw = Field()

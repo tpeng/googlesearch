@@ -31,10 +31,11 @@ class ScrapyGoogleSpiderPipeline(object):
         if result:
             log.msg("page %s already scraped.s" % item['url'], logLevel=log.INFO)
         else:
-            tx.execute("insert into page(url, name, html, text, country)"
-                    "values (%s, %s, %s, %s, %s)", (item.get('url'), item.get('name'),
-                                                    item.get('html'), item.get('text'), item.get('country')))
-            log.msg("page %s store in db" % item.get('url'))
+            tx.execute("insert into page(url, name, html, text, country, kw)"
+                    "values (%s, %s, %s, %s, %s, %s)", (item.get('url'), item.get('name'),
+                                                    item.get('html'), item.get('text'),
+                                                    item.get('country'), item.get('kw')))
+            log.msg("page %s store in db" % item.get('url'), logLevel=log.INFO)
 
 
     def _normalize_text(self, text):
