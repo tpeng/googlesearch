@@ -7,7 +7,7 @@ from scrapy.utils.response import get_base_url
 from googlesearch.items import GoogleSearchItem
 
 """
-A spiser to parse the google search result.
+A spider to parse the google search result.
 """
 class GoogleSearchSpider(BaseSpider):
     name = 'googlesearch'
@@ -15,6 +15,7 @@ class GoogleSearchSpider(BaseSpider):
     country = 'com'
     start_urls = []
     savedb = True
+    download_delay = 2
 
     def start_requests(self):
         url = self.make_google_search_request(self.country, self.kws)
@@ -26,8 +27,8 @@ class GoogleSearchSpider(BaseSpider):
     def parse(self, response):
         hxs = HtmlXPathSelector(response)
         for sel in hxs.select('//div[@id="ires"]//li[@class="g"]'):
-            name = ''.join(sel.select(".//h3[@class='r']//text()").extract())
-            url =  self._urlnorm(''.join(sel.select(".//cite//text()").extract()))
+            name = u''.join(sel.select(".//h3[@class='r']//text()").extract())
+            url =  _urlnorm(u''.join(sel.select(".//cite//text()").extract()))
             code = _get_country_code(url)
             if code == self.country:
                 yield Request(url=url, callback=self.parse_item, meta={'name':name})
@@ -46,19 +47,19 @@ class GoogleSearchSpider(BaseSpider):
     def _build_absolute_url(self, response, url):
         return urljoin(get_base_url(response), url)
 
-    def _urlnorm(self, url, encoding='utf8'):
+def _urlnorm(url, encoding='utf8'):
 
-        url = url.strip()
-        if isinstance(url, unicode):
-            url = url.encode('ascii', 'ignore')
-        else:
-            url = url.decode(encoding).encode('ascii', 'ignore')
+    url = url.strip()
+    if isinstance(url, unicode):
+        url = url.encode('ascii', 'ignore')
+    else:
+        url = url.decode(encoding).encode('ascii', 'ignore')
 
-        if '://' not in url:
-            url = 'http://%s' % url
+    if '://' not in url:
+        url = 'http://%s' % url
 
-        scheme, netloc, path = urlparse(url)[:3]
-        return '%s://%s%s' % (scheme, netloc, path or '/')
+    scheme, netloc, path = urlparse(url)[:3]
+    return '%s://%s%s' % (scheme, netloc, path or '/')
 
 
 def _get_country_code(url):
@@ -67,8 +68,8 @@ def _get_country_code(url):
 
     >>> _get_country_code('http://scrapinghub.ie')
     'ie'
-    >>> _get_country_code('http://scrapinghub.ie/test.html')
+    >>> _get_country_code('http://www.astoncarpets.ie/contact.htm')
     'ie'
     """
     netloc = urlparse(url)[1]
-    return netloc.partition('.')[-1]
+    return netloc.rpartition('.')[-1]
