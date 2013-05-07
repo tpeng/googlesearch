@@ -6,7 +6,7 @@ from scrapy.spider import BaseSpider
 from scrapy.utils.response import get_base_url
 from googlesearch.items import GoogleSearchItem
 
-_COUNTRIES = {
+COUNTRIES = {
     'ie': 'countryIE'
 }
 
@@ -17,13 +17,12 @@ class GoogleSearchSpider(BaseSpider):
     name = 'googlesearch'
     queries = ('contact us', 'hotel')
     region = 'ie'
-    savedb = True
     download_delay = 5
     base_url_fmt = 'http://www.google.{region}/search?hl=en&as_q=&as_epq={query}&as_oq=&as_eq=&as_nlo=&as_nhi=&lr=&cr={country}&as_qdr=all&as_sitesearch={region}&as_occt=any&safe=images&tbs=&as_filetype=&as_rights='
 
     def start_requests(self):
         for query in self.queries:
-            url = self.make_google_search_request(_COUNTRIES[self.region], query)
+            url = self.make_google_search_request(COUNTRIES[self.region], query)
             yield Request(url=url, meta={'query': query})
 
     def make_google_search_request(self, country, query):
