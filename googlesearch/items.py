@@ -7,8 +7,8 @@ from scrapy.item import Item, Field
 
 class GoogleSearchItem(Item):
     name = Field()
-    country = Field()
+    region = Field()
     url = Field()
     html = Field()
-    text = Field()
-    kw = Field()
+    query = Field()
+    crawled = Field()

@@ -1,17 +1,16 @@
-drop database if exists postal_address_corpus;
+drop database if exists corpus;
 
-create database postal_address_corpus;
-use   postal_address_corpus;
+create database corpus;
+use corpus;
 
 create table page (
   id MEDIUMINT not null AUTO_INCREMENT,
-  url VARCHAR(500) not null,
   name VARCHAR(100) not null,
+  url VARCHAR(2046) not null,
   html BLOB,
-  text BLOB,
-  country VARCHAR(100) not null,
-  address VARCHAR(500) not null,
-  kw VARCHAR(100) not null,
+  region VARCHAR(10) not null,
+  query VARCHAR(100) not null,
+  crawled DATETIME not null,
   PRIMARY KEY (id)
 ) engine=innodb default charset=utf8;
 
