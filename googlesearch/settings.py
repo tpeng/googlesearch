@@ -11,7 +11,6 @@ BOT_NAME = 'googlesearch'
 SPIDER_MODULES = ['googlesearch.spiders']
 NEWSPIDER_MODULE = 'googlesearch.spiders'
 
-# Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'googlesearch (+http://www.yourdomain.com)'
-
 ITEM_PIPELINES = ['googlesearch.pipelines.ScrapyGoogleSpiderPipeline']
+
+CLOSESPIDER_ITEMCOUNT = 500

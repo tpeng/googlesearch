@@ -4,10 +4,12 @@ from scrapy.http import Request
 from scrapy.selector import HtmlXPathSelector
 from scrapy.spider import BaseSpider
 from scrapy.utils.response import get_base_url
+from scrapy.utils.misc import arg_to_iter
 from googlesearch.items import GoogleSearchItem
 
 COUNTRIES = {
-    'ie': 'countryIE'
+    'ie': 'countryIE',
+    'nl': 'countryNL'
 }
 
 """
@@ -18,14 +20,18 @@ class GoogleSearchSpider(BaseSpider):
     queries = ('contact us', 'hotel')
     region = 'ie'
     download_delay = 5
-    base_url_fmt = 'http://www.google.{region}/search?hl=en&as_q=&as_epq={query}&as_oq=&as_eq=&as_nlo=&as_nhi=&lr=&cr={country}&as_qdr=all&as_sitesearch={region}&as_occt=any&safe=images&tbs=&as_filetype=&as_rights='
+    base_url_fmt = 'http://www.google.{region}/search?hl=en&as_q=&as_epq={query}&as_oq=&as_eq=&as_nlo=&as_nhi=&lr=&cr={country}&as_qdr=all&as_sitesearch=&as_occt=any&safe=images&tbs=&as_filetype=&as_rights='
+    download_html = False
+    limit_country = False
 
     def start_requests(self):
-        for query in self.queries:
+        for query in arg_to_iter(self.queries):
             url = self.make_google_search_request(COUNTRIES[self.region], query)
             yield Request(url=url, meta={'query': query})
 
     def make_google_search_request(self, country, query):
+        if not self.limit_country:
+            country = ''
         return self.base_url_fmt.format(country=country, region=self.region, query='+'.join(query.split()).strip('+'))
 
     def parse(self, response):
@@ -34,11 +40,14 @@ class GoogleSearchSpider(BaseSpider):
             name = u''.join(sel.select(".//text()").extract())
             url = _parse_url(sel.select('.//a/@href').extract()[0])
             region = _get_region(url)
-            if region == self.region and len(url):
-                yield Request(url=url, callback=self.parse_item, meta={'name':name,
-                                                                       'query': response.meta['query']})
+            if len(url):
+                if self.download_html:
+                    yield Request(url=url, callback=self.parse_item, meta={'name':name,
+                                                                           'query': response.meta['query']})
+                else:
+                    yield GoogleSearchItem(url=url, name=name, query=response.meta['query'], crawled=datetime.datetime.utcnow().isoformat())
 
-        next_page = hxs.select('//table[@id="nav"]//td[@class="b" and position() = last()]/a')
+        next_page = hxs.select('//table[@id="nav"]//td[contains(@class, "b") and position() = last()]/a')
         if next_page:
             url = self._build_absolute_url(response, next_page.select('.//@href').extract()[0])
             yield Request(url=url, callback=self.parse, meta={'query': response.meta['query']})
