@@ -11,6 +11,6 @@ BOT_NAME = 'googlesearch'
 SPIDER_MODULES = ['googlesearch.spiders']
 NEWSPIDER_MODULE = 'googlesearch.spiders'
 
-ITEM_PIPELINES = ['googlesearch.pipelines.ScrapyGoogleSpiderPipeline']
+ITEM_PIPELINES = {'googlesearch.pipelines.ScrapyGoogleSpiderPipeline': 300}
 
 CLOSESPIDER_ITEMCOUNT = 500
