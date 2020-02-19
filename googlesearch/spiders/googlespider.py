@@ -1,8 +1,9 @@
-from urlparse import urljoin, urlparse, parse_qsl
+#from urlparse import urljoin, urlparse, parse_qsl
+import urllib.parse
 import datetime
 from scrapy.http import Request
-from scrapy.selector import HtmlXPathSelector
-from scrapy.spider import BaseSpider
+from scrapy.selector import Selector
+from scrapy.spiders import Spider
 from scrapy.utils.response import get_base_url
 from scrapy.utils.misc import arg_to_iter
 from googlesearch.items import GoogleSearchItem
@@ -15,7 +16,7 @@ COUNTRIES = {
 """
 A spider to parse the google search result bootstraped from given queries.
 """
-class GoogleSearchSpider(BaseSpider):
+class GoogleSearchSpider(Spider):
     name = 'googlesearch'
     queries = ('contact us', 'hotel')
     region = 'ie'
@@ -35,7 +36,7 @@ class GoogleSearchSpider(BaseSpider):
         return self.base_url_fmt.format(country=country, region=self.region, query='+'.join(query.split()).strip('+'))
 
     def parse(self, response):
-        hxs = HtmlXPathSelector(response)
+        hxs = Selector(response)
         for sel in hxs.select('//div[@id="ires"]//li[@class="g"]//h3[@class="r"]'):
             name = u''.join(sel.select(".//text()").extract())
             url = _parse_url(sel.select('.//a/@href').extract()[0])
